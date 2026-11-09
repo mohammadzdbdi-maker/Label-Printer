@@ -56,8 +56,49 @@ class Handler(BaseHTTPRequestHandler):
         self.send_bytes(code, json.dumps(obj, ensure_ascii=False).encode("utf-8"),
                         "application/json; charset=utf-8")
 
+    def send_attachment(self, file_path, filename):
+        """ارسال فایل ZIP بهصورت جریانی (بدون خواندن ۱۰۰ مگابایت در حافظه)"""
+        f = Path(file_path)
+        if not f.is_file():
+            return self.send_bytes(404, b"file not found")
+        size = f.stat().st_size
+        self.send_response(200)
+        self.send_header("Content-Type", "application/zip")
+        self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+        self.send_header("Content-Length", str(size))
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        with f.open("rb") as fh:
+            while True:
+                chunk = fh.read(256 * 1024)
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+        self.log_message("DOWNLOAD %s (%d bytes)", filename, size)
+
     def do_GET(self):
         path = urlparse(self.path).path
+        if path in ("/Label-Printer.zip", "/full.zip"):
+            return self.send_attachment("/tmp/zebra-dist/Label-Printer-full.zip", "Label-Printer.zip")
+        if path in ("/ZebraManager-update.zip", "/update.zip"):
+            return self.send_attachment("/tmp/zebra-dist/ZebraManager-update.zip", "ZebraManager-update.zip")
+        if path == "/download":
+            page = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>دریافت نرم افزار مدیریت پرینتر</title>
+<style>body{font-family:Tahoma,sans-serif;background:#eef3f7;color:#14212b;margin:0;padding:28px;line-height:1.9}
+.wrap{max-width:720px;margin:auto;background:#fff;border-radius:18px;padding:26px;box-shadow:0 12px 40px -18px #345}
+h1{margin:0 0 6px;font-size:21px;color:#0e7c86}p{color:#6a768c;font-size:14px}
+a{display:block;margin:14px 0;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:bold;font-size:15px}
+a.full{background:linear-gradient(135deg,#0e7c86,#0b5f67);color:#fff}a.upd{background:#fff8e6;border:1.5px solid #f2cf7a;color:#8a5a00}
+code{background:#f2f6fa;padding:2px 6px;border-radius:6px;font-size:13px}small{color:#6a768c}</style></head>
+<body><div class="wrap"><h1>دریافت نرم افزار مدیریت پرینتر</h1>
+<p>روی یکی از دکمههای زیر کلیک کنید تا فایل ZIP ذخیره شود، سپس آن را Extract کنید و <code>ZebraManager.bat</code> را اجرا کنید.</p>
+<a class="full" href="/Label-Printer.zip">⬇️ بسته کامل (۹۸ مگابایت) — شامل درایور Zebra، آماده اجرا</a>
+<a class="upd" href="/ZebraManager-update.zip">⬇️ فقط فایلهای جدید (۵۴ کیلوبایت) — اگه پوشه قدیمی با درایور رو داری</a>
+<p style="margin-top:22px"><small>بسته دوم را در همان پوشه <code>Zebra GK888t Setup</code> قدیمی Extract کنید (جایگزینی فایلها را تایید کنید). بسته کامل را هرجا Extract کنید، فقط ساختار پوشهها (<code>app</code>، <code>lib</code>، <code>config</code>، <code>driver</code>) را بههم نزنید.</small></p>
+<p><small>روی گیت‌هاب هم هست: <code>arena/4345765d-label-printer</code> → Code → Download ZIP</small></p>
+</div></body></html>"""
+            return self.send_bytes(200, page.encode("utf-8"), "text/html; charset=utf-8")
         if path == "/status":
             return self.send_json({"ok": True, "text": "آماده (شبیهساز، پرینتر واقعی نیست)",
                                    "status": "Normal", "jobs": 0})
