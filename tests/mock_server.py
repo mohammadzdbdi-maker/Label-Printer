@@ -12,6 +12,7 @@ import argparse
 import base64
 import json
 import re
+import zipfile
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -21,6 +22,48 @@ ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "label-server"
 OUT = Path("/tmp/zebra-label-tests")
 OUT.mkdir(exist_ok=True)
+DIST = Path("/tmp/zebra-dist")
+
+# فایلهایی که نسبت به پوشه اصلی کاربر تغییر کردهاند (برای بسته سبک بروزرسانی)
+UPDATED_FILES = [
+    ".gitignore", "README.md", "TEST-REPORT.md", "ZebraManager.bat",
+    "app/ZebraManager.ps1", "app/preview.html", "config/printers.json",
+    "connect-client.ps1", "diagnose.ps1", "fix-client.bat", "fix-client.ps1",
+    "host.txt", "install-label-server.ps1", "lib/Zebra.ps1", "share-host.ps1",
+    "tests/check_ps_syntax.bat", "tests/check_ps_syntax.ps1",
+    "tests/mock_server.py", "tests/selftest.py",
+]
+
+
+def build_zips():
+    """ساخت بستههای دانلود (اگر محیط ریستارت شده باشد دوباره ساخته میشوند)"""
+    DIST.mkdir(exist_ok=True)
+    full = DIST / "Label-Printer-full.zip"
+    skip_dirs = {".git", "__pycache__", ".pytest_cache", "logs"}
+    with zipfile.ZipFile(full, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+        for p in sorted(ROOT.rglob("*")):
+            if not p.is_file():
+                continue
+            rel = p.relative_to(ROOT)
+            if any(part in skip_dirs for part in rel.parts):
+                continue
+            if p.name.endswith((".pyc", ".log")):
+                continue
+            z.write(p, str(Path("Label-Printer") / rel))
+    upd = DIST / "ZebraManager-update.zip"
+    with zipfile.ZipFile(upd, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for name in UPDATED_FILES:
+            p = ROOT / name
+            if p.is_file():
+                z.write(p, name)
+    print(f"بستهها آماده: {full.stat().st_size / 1024 / 1024:.1f} MB + "
+          f"{upd.stat().st_size / 1024:.0f} KB", flush=True)
+
+
+def ensure_zips():
+    DIST.mkdir(exist_ok=True)
+    if not (DIST / "Label-Printer-full.zip").is_file() or not (DIST / "ZebraManager-update.zip").is_file():
+        build_zips()
 
 MIME = {
     ".html": "text/html; charset=utf-8",
@@ -60,6 +103,8 @@ class Handler(BaseHTTPRequestHandler):
         """ارسال فایل ZIP بهصورت جریانی (بدون خواندن ۱۰۰ مگابایت در حافظه)"""
         f = Path(file_path)
         if not f.is_file():
+            ensure_zips()
+        if not f.is_file():
             return self.send_bytes(404, b"file not found")
         size = f.stat().st_size
         self.send_response(200)
@@ -68,13 +113,16 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(size))
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
-        with f.open("rb") as fh:
-            while True:
-                chunk = fh.read(256 * 1024)
-                if not chunk:
-                    break
-                self.wfile.write(chunk)
-        self.log_message("DOWNLOAD %s (%d bytes)", filename, size)
+        try:
+            with f.open("rb") as fh:
+                while True:
+                    chunk = fh.read(256 * 1024)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+            self.log_message("DOWNLOAD %s (%d bytes)", filename, size)
+        except (BrokenPipeError, ConnectionResetError):
+            self.log_message("DOWNLOAD %s قطع شد توسط مرورگر", filename)
 
     def do_GET(self):
         path = urlparse(self.path).path
@@ -94,7 +142,7 @@ code{background:#f2f6fa;padding:2px 6px;border-radius:6px;font-size:13px}small{c
 <body><div class="wrap"><h1>دریافت نرم افزار مدیریت پرینتر</h1>
 <p>روی یکی از دکمههای زیر کلیک کنید تا فایل ZIP ذخیره شود، سپس آن را Extract کنید و <code>ZebraManager.bat</code> را اجرا کنید.</p>
 <a class="full" href="/Label-Printer.zip">⬇️ بسته کامل (۹۸ مگابایت) — شامل درایور Zebra، آماده اجرا</a>
-<a class="upd" href="/ZebraManager-update.zip">⬇️ فقط فایلهای جدید (۵۴ کیلوبایت) — اگه پوشه قدیمی با درایور رو داری</a>
+<a class="upd" href="/ZebraManager-update.zip">⬇️ فقط فایلهای جدید (۵۶ کیلوبایت) — اگه پوشه قدیمی با درایور رو داری</a>
 <p style="margin-top:22px"><small>بسته دوم را در همان پوشه <code>Zebra GK888t Setup</code> قدیمی Extract کنید (جایگزینی فایلها را تایید کنید). بسته کامل را هرجا Extract کنید، فقط ساختار پوشهها (<code>app</code>، <code>lib</code>، <code>config</code>، <code>driver</code>) را بههم نزنید.</small></p>
 <p><small>روی گیت‌هاب هم هست: <code>arena/4345765d-label-printer</code> → Code → Download ZIP</small></p>
 </div></body></html>"""
@@ -149,6 +197,7 @@ def main():
     ap.add_argument("--host", default="0.0.0.0")
     ap.add_argument("--port", type=int, default=8080)
     a = ap.parse_args()
+    ensure_zips()
     srv = ThreadingHTTPServer((a.host, a.port), Handler)
     print(f"شبیهساز لیبل سرور: http://{a.host}:{a.port}   (وب: {WEB})", flush=True)
     print(f"خروجی چاپهای تست: {OUT}", flush=True)
