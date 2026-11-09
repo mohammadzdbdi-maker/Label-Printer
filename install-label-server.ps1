@@ -1,6 +1,8 @@
 ﻿# نصب سرور لیبل ساختنی برای گوشی‌ها - روی کامپیوتری که پرینتر به آن وصل است (install-label-server.bat)
 # بعد از نصب، با هر بار ورود به ویندوز خودکار اجرا می‌شود.
 
+param([switch]$NoPause)
+
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
   Start-Process powershell -Verb RunAs -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$($MyInvocation.MyCommand.Path)`"")
@@ -73,4 +75,4 @@ try {
 catch {
   Write-Host "`nERROR: $($_.Exception.Message)" -ForegroundColor Red
 }
-Read-Host "`nPress Enter to close"
+if (-not $NoPause) { Read-Host "`nPress Enter to close" }

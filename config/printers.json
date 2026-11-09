@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "defaultProfileId": "zebra-gk888t",
+  "host": {
+    "name": "",
+    "ip": "",
+    "autoDetect": true,
+    "note": "خالی = نرمافزار هاست رو خودش تو شبکه پیدا میکند؛ هنگام نصب بهعنوان میزبان با نام/IP همین سیستم پر میشود."
+  },
+  "discovery": {
+    "scanSubnet": true,
+    "port": 445,
+    "timeoutMs": 350,
+    "maxThreads": 40,
+    "extraHosts": []
+  },
+  "labelServer": {
+    "enabled": true,
+    "port": 8080,
+    "dest": "C:\\ZebraLabelServer",
+    "taskName": "Zebra Label Server"
+  },
+  "cleanup": {
+    "mode": "full",
+    "removePrintUser": true,
+    "removeLabelServer": true,
+    "removeUrlAcl": true,
+    "removeOldCredentials": true
+  },
+  "profiles": [
+    {
+      "id": "zebra-gk888t",
+      "name": "لیبل زن داروخانه (Zebra GK888t)",
+      "printerName": "Zebra GK888t - EPL",
+      "driverName": "Zebra GK888t - EPL",
+      "driverInf": "driver/Zebra.inf",
+      "shareName": "ZebraLabel",
+      "printUser": "zebraprint",
+      "usbHint": "GK888",
+      "settingsPath": "settings",
+      "label": { "widthMm": 58, "heightMm": 40 },
+      "testLabel": true
+    }
+  ]
+}

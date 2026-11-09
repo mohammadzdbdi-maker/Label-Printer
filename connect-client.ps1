@@ -1,6 +1,8 @@
 ﻿# وصل شدن به پرینتر Zebra اشتراکی از کامپیوترهای دیگر شبکه
 # این را روی هر کامپیوتری اجرا کنید که می‌خواهد روی پرینتر چاپ کند (connect-client.bat)
 
+param([switch]$NoPause, [string]$TargetHost, [string]$TargetIp)
+
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
   Start-Process powershell -Verb RunAs -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$($MyInvocation.MyCommand.Path)`"")
@@ -23,7 +25,18 @@ try {
     $hostName = $lines[0]; $hostIp = $lines[1]; if ($lines[2]) { $ShareName = $lines[2] }
     if ($lines.Count -ge 4 -and $lines[3]) { $PrintUser = $lines[3] }
   }
-  if (-not $hostName) { $hostName = Read-Host 'Name or IP of the PC the printer is connected to' }
+  if ($TargetHost) { $hostName = $TargetHost }
+  if ($TargetIp)   { $hostIp   = $TargetIp }
+  # اگر این سیستم قبلاً میزبان بوده، host.txt ممکن است هنوز به خودش اشاره کند
+  $selfIps = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress)
+  if (($hostName -and $hostName -ieq $env:COMPUTERNAME) -or ($hostIp -and $selfIps -contains $hostIp)) {
+    Warn 'host.txt points to this very PC (it used to be the host) - ignoring it.'
+    $hostName = $null; $hostIp = $null
+  }
+  if (-not $hostName) {
+    if ($NoPause) { throw 'هاست مشخص نیست. از «نرمافزار مدیریت پرینتر» استفاده کنید یا -TargetHost بدهید.' }
+    $hostName = Read-Host 'Name or IP of the PC the printer is connected to'
+  }
 
   Step "Looking for $hostName on the network..."
   $target = $null
@@ -49,6 +62,14 @@ try {
     if ($LASTEXITCODE -eq 0) { Ok 'Login accepted' } else { Warn 'Login was not accepted - check the password (run again to retry).' }
   }
 
+  # پاکسازی پرینتر/پورتهایی که زمان میزبانی قدیمی به نام همین سیستم ساخته شدهاند
+  $selfRe = '^\\\\' + [regex]::Escape($env:COMPUTERNAME) + '\\'
+  Get-Printer -ErrorAction SilentlyContinue | Where-Object { $_.PortName -match $selfRe } | ForEach-Object {
+    Warn "Removing stale former-host printer: $($_.Name)"
+    Get-PrintJob -PrinterName $_.Name -ErrorAction SilentlyContinue | Remove-PrintJob -ErrorAction SilentlyContinue
+    Remove-Printer -Name $_.Name -ErrorAction SilentlyContinue
+  }
+
   # 2) نصب درایور روی همین کامپیوتر (تا ویندوز از سرور درایور نخواهد)
   Step 'Installing driver locally...'
   pnputil /add-driver "$here\driver\zebra.inf" /install | Out-Null
@@ -66,7 +87,7 @@ try {
   Step "Connecting to \\$target\$ShareName ..."
   $conn      = "\\$target\$ShareName"
   $LocalName = "Zebra GK888t ($target)"
-  # ویندوز اتصال را با نام اصلی پرینتر می‌سازد (مثلا \\NOSKHE-2\Zebra GK888t - EPL)، نه با نام اشتراک
+  # ویندوز اتصال را با نام اصلی پرینتر می‌سازد (مثلا \\HOST-PC\Zebra GK888t - EPL)، نه با نام اشتراک
   $isOurs = { param($p) $p.Name -ieq $conn -or $p.Name -eq $LocalName -or $p.PortName -ieq $conn -or
     ($p.Type -eq 'Connection' -and (@($hostName, $hostIp) | Where-Object { $_ -and $p.Name -like "\\$_\*" })) }
   $printer = Get-Printer | Where-Object { & $isOurs $_ } | Select-Object -First 1
@@ -127,4 +148,4 @@ try {
 catch {
   Write-Host "`nERROR: $($_.Exception.Message)" -ForegroundColor Red
 }
-Read-Host "`nPress Enter to close"
+if (-not $NoPause) { Read-Host "`nPress Enter to close" }

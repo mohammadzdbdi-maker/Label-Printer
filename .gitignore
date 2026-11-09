@@ -1,0 +1,11 @@
+# خروجیهای تولیدشده توسط نرمافزار (وارد گیت نشوند)
+logs/
+*.log
+diag-*.txt
+!diag-MOHAMMAD-20261031-114427.txt
+label-server/settings.json
+label-server/server.log*
+tests/.output/
+__pycache__/
+.pytest_cache/
+*.pyc

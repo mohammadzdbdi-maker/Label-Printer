@@ -1,13 +1,16 @@
 ﻿# عیب‌یابی اتصال به پرینتر اشتراکی Zebra - یک فایل لاگ می‌سازد (diagnose.bat)
 # بدون دسترسی ادمین اجرا می‌شود تا وضعیت واقعی کاربر را ببیند. یک لیبل تست هم می‌فرستد.
+# نکته: هیچ نام کامپیوتر/IPای هاردکد نیست؛ همهچیز از host.txt خوانده میشود.
+
+param([switch]$NoPause)
 
 $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
 $stamp     = Get-Date -Format 'yyyyMMdd-HHmmss'
 $logName   = "diag-$env:COMPUTERNAME-$stamp.txt"
 $logPath   = Join-Path $here $logName
-$LogShares = @('\\MOHAMMAD\شبکه\logs', '\\192.168.70.155\شبکه\logs')
+$LogShares = @()   # مسیر شیر لاگ دلخواه خود را اینجا اضافه کنید
 
-$hostName = 'NOSKHE-2'; $hostIp = '192.168.70.168'; $ShareName = 'ZebraLabel'; $PrintUser = 'zebraprint'
+$hostName = $null; $hostIp = $null; $ShareName = 'ZebraLabel'; $PrintUser = $null
 if (Test-Path "$here\host.txt") {
   $l = @(Get-Content "$here\host.txt")
   if ($l[0]) { $hostName = $l[0] }; if ($l.Count -gt 1 -and $l[1]) { $hostIp = $l[1] }
@@ -15,6 +18,9 @@ if (Test-Path "$here\host.txt") {
 }
 
 $out = New-Object System.Collections.Generic.List[string]
+if (-not $hostName) {
+  $out.Add('توجه: host.txt هنوز تنظیم نشده است. ابتدا در نرم افزار مدیریت پرینتر دکمه «پیدا کردن هاست» یا «نصب و اشتراک» را بزنید.')
+}
 function Section($t) { $out.Add(''); $out.Add("===== $t ====="); Write-Host ">> $t" -ForegroundColor Cyan }
 function Log($t)     { $out.Add([string]$t) }
 function Run($title, [scriptblock]$sb) {
@@ -76,6 +82,7 @@ Run 'Zebra driver & printers on this PC' {
 
 # تست ۱: ارسال مستقیم یک لیبل به پرینتر اشتراکی
 Run 'TEST 1: send label directly to share' {
+  if (-not $hostName) { 'SKIP: host.txt تنظیم نشده است.'; return }
   $f = Join-Path $env:TEMP 'zebra-diag.txt'
   [IO.File]::WriteAllText($f, "`r`nN`r`nA30,40,0,3,1,1,N,`"DIAG $env:COMPUTERNAME`"`r`nP1`r`n")
   foreach ($h in $hostName, $hostIp) {
@@ -87,6 +94,7 @@ Run 'TEST 1: send label directly to share' {
 
 # تست ۲: اتصال معمولی ویندوز (برای دیدن کد خطا، مثلا 0x11b)
 Run 'TEST 2: Windows printer connection (error code only)' {
+  if (-not $hostName) { 'SKIP: host.txt تنظیم نشده است.'; return }
   $conn = "\\$hostName\$ShareName"
   $had  = [bool](Get-Printer | Where-Object { $_.Type -eq 'Connection' -and ($_.Name -like "\\$hostName\*" -or $_.Name -like "\\$hostIp\*") })
   $net  = New-Object -ComObject WScript.Network
@@ -110,6 +118,8 @@ $sent = $false
 foreach ($s in $LogShares) {
   try { Copy-Item $logPath (Join-Path $s $logName) -ErrorAction Stop; Write-Host "Log also sent to: $s" -ForegroundColor Green; $sent = $true; break } catch { }
 }
-if (-not $sent) { Write-Host 'Could not send the log over the network - bring this file to MOHAMMAD manually.' -ForegroundColor Yellow }
-Start-Process notepad.exe $logPath
-Read-Host "`nPress Enter to close"
+if (-not $sent) { Write-Host 'Log was not sent over the network - copy this file manually if needed.' -ForegroundColor Yellow }
+if (-not $NoPause) {
+  Start-Process notepad.exe $logPath
+  Read-Host "`nPress Enter to close"
+}

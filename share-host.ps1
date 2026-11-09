@@ -1,6 +1,8 @@
 ﻿# اشتراک‌گذاری پرینتر Zebra روی شبکه
 # این را روی کامپیوتری اجرا کنید که پرینتر با USB به آن وصل است (share-host.bat)
 
+param([switch]$NoPause)
+
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
   Start-Process powershell -Verb RunAs -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$($MyInvocation.MyCommand.Path)`"")
@@ -83,7 +85,13 @@ try {
   $ip = (Get-NetIPAddress -AddressFamily IPv4 |
     Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' -and $_.PrefixOrigin -ne 'WellKnown' } |
     Select-Object -First 1).IPAddress
-  "$env:COMPUTERNAME`r`n$ip`r`n$ShareName" | Set-Content "$here\host.txt" -Encoding ASCII
+  $hostFile = "$here\host.txt"
+  $lines = @(if (Test-Path $hostFile) { Get-Content $hostFile } else { @($env:COMPUTERNAME, '', $ShareName) })
+  while ($lines.Count -lt 4) { $lines += '' }
+  $lines[0] = $env:COMPUTERNAME
+  $lines[1] = $ip
+  $lines[2] = $ShareName
+  $lines | Set-Content $hostFile -Encoding ASCII
   Ok 'Saved connection info to host.txt'
 
   Write-Host "`n==== DONE ====" -ForegroundColor Green
@@ -97,4 +105,4 @@ try {
 catch {
   Write-Host "`nERROR: $($_.Exception.Message)" -ForegroundColor Red
 }
-Read-Host "`nPress Enter to close"
+if (-not $NoPause) { Read-Host "`nPress Enter to close" }
