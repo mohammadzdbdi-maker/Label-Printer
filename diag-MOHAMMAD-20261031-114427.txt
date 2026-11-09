@@ -1,0 +1,137 @@
+﻿
+===== System =====
+Computer : MOHAMMAD
+User     : MOHAMMAD\MOHAMMAD
+Date     : 10/31/2026 11:44:28
+OS       : Microsoft Windows 10 Pro 10.0.19045 build 19045
+Admin    : False
+Target   : \\NOSKHE-2\ZebraLabel  (192.168.70.168)  user=zebraprint
+host.txt : True
+
+===== Network =====
+
+InterfaceAlias               IPAddress       PrefixLength
+--------------               ---------       ------------
+Local Area Connection* 10    169.254.52.245            16
+Local Area Connection* 9     169.254.131.102           16
+Bluetooth Network Connection 169.254.45.169            16
+Wi-Fi                        192.168.70.155            24
+Wi-Fi
+
+===== Reach printer PC =====
+NOSKHE-2         ping=True  resolves=192.168.70.168   port445=True
+192.168.70.168   ping=True  resolves=192.168.70.168   port445=True
+
+===== SMB client settings =====
+
+AllowInsecureGuestAuth RequireSecuritySignature EnableSecuritySignature
+---------------------- ------------------------ -----------------------
+                     1                        0                       1
+Policy AllowInsecureGuestAuth: 1
+
+===== Saved logins & open connections =====
+
+>     Target: Domain:target=192.168.70.168
+      Type: Domain Password
+>     User: NOSKHE-2\zebraprint
+      
+      Target: LegacyGeneric:target=sa@AriaReports
+>     Target: Domain:target=NOSKHE-2
+      Type: Domain Password
+>     User: NOSKHE-2\zebraprint
+      
+      Target: LegacyGeneric:target=ttac:acc:24228c80@HODHOD
+New connections will be remembered.
+
+There are no entries in the list.
+
+===== net view \\NOSKHE-2 =====
+Shared resources at \\NOSKHE-2
+
+
+
+Share name    Type   Used as  Comment             
+
+-------------------------------------------------------------------------------
+Users         Disk                                
+ZebraLabel    Print           Zebra GK888t - EPL  
+�����? ?���?  Disk                                
+The command completed successfully.
+
+===== net view \\192.168.70.168 =====
+Shared resources at \\192.168.70.168
+
+
+
+Share name    Type   Used as  Comment             
+
+-------------------------------------------------------------------------------
+Users         Disk                                
+ZebraLabel    Print           Zebra GK888t - EPL  
+�����? ?���?  Disk                                
+The command completed successfully.
+
+===== Zebra driver & printers on this PC =====
+
+Name                       MajorVersion
+----                       ------------
+Zebra GK888t - EPL                    3
+ZDesigner ZD888-203dpi ZPL            3
+
+
+
+
+Name          : Zebra GK888t (NOSKHE-2)
+Type          : Local
+PortName      : \\NOSKHE-2\ZebraLabel
+PrinterStatus : Normal
+JobCount      : 0
+
+===== TEST 1: send label directly to share =====
+\\NOSKHE-2\ZebraLabel -> exit=0 :         1 file(s) copied.
+
+===== TEST 2: Windows printer connection (error code only) =====
+OK - connected
+
+===== Recent print errors (PrintService log) =====
+
+
+TimeCreated : 10/30/2026 14:12:45
+Id          : 372
+Message     : The document Print Document, owned by MOHAMMAD, failed to print on printer Zebra GK888t (NOSKHE-2). Try to print the document again, or restart the print spooler. Data type: NT EMF 1.008. Size of the spool file in bytes:
+
+TimeCreated : 10/30/2026 13:29:56
+Id          : 372
+Message     : The document Print Document, owned by MOHAMMAD, failed to print on printer Zebra GK888t (NOSKHE-2). Try to print the document again, or restart the print spooler. Data type: NT EMF 1.008. Size of the spool file in bytes:
+
+TimeCreated : 10/30/2026 12:21:21
+Id          : 823
+Message     : The default printer was changed to EPSON L565 Series (Copy 1). See the event user data for context information.
+
+TimeCreated : 10/30/2026 12:21:13
+Id          : 823
+Message     : The default printer was changed to Zebra GK888t - EPL. See the event user data for context information.
+
+TimeCreated : 9/30/2026 10:14:34
+Id          : 823
+Message     : The default printer was changed to ZDesigner ZD888-203dpi ZPL. See the event user data for context information.
+
+TimeCreated : 8/2/2026 16:56:55
+Id          : 823
+Message     : The default printer was changed to HP LaserJet Professional P1102. See the event user data for context information.
+
+TimeCreated : 7/24/2026 10:04:11
+Id          : 601
+Message     : The print spooler failed to download and import the printer driver from \\192.168.70.172 into the driver store for driver EPSON L565 Series. Error code= 800f0242.
+
+TimeCreated : 7/24/2026 10:04:11
+Id          : 600
+Message     : The print spooler failed to import the printer driver that was downloaded from \\192.168.70.172\print$\x64\PCC\e_wf1mpe.inf_amd64_3efc75f13fb057be.cab into the driver store for driver EPSON L565 Series. Error code= 800f0
+
+TimeCreated : 7/24/2026 10:04:08
+Id          : 600
+Message     : The print spooler failed to import the printer driver that was downloaded from \\192.168.70.172\print$\x64\PCC\e_wf1mpe.inf_amd64_3efc75f13fb057be.cab into the driver store for driver EPSON L565 Series. Error code= 80070
+
+TimeCreated : 7/24/2026 00:02:41
+Id          : 823
+Message     : The default printer was changed to PDFCreator. See the event user data for context information.

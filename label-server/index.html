@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e7c86">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="لیبل ساختنی">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>لیبل ساختنی</title>
+<style>
+@font-face{font-family:"AradFD";src:url(/aradfd.ttf) format("truetype");font-display:block}
+:root{
+  --bg:#eef3f7;--card:#fff;--ink:#14212b;--mut:#6a768c;--line:#dbe3ec;--field:#f7f9fc;
+  --pri:#0e7c86;--pri2:#0b5f67;--ok:#16a34a;--bad:#dc2626;--warn:#d97706;--shadow:0 6px 24px -12px rgba(20,33,43,.25);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f171d;--card:#18232b;--ink:#e6edf3;--mut:#94a3b4;--line:#2a3843;--field:#121c23;
+  --pri:#2bb3bd;--pri2:#56c9d1;--shadow:0 6px 24px -12px rgba(0,0,0,.6);
+}}
+:root[data-theme="dark"]{--bg:#0f171d;--card:#18232b;--ink:#e6edf3;--mut:#94a3b4;--line:#2a3843;--field:#121c23;--pri:#2bb3bd;--pri2:#56c9d1}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"AradFD",Tahoma,sans-serif;font-size:16px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+  background:linear-gradient(135deg,#0e7c86,#0b5f67);color:#fff;box-shadow:0 2px 12px -6px rgba(0,0,0,.4)}
+header h1{margin:0;font-size:18px;flex:1}
+.pill{display:flex;align-items:center;gap:6px;font-size:13px;background:rgba(255,255,255,.16);padding:5px 10px;border-radius:99px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1}
+.dot.ok{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}.dot.bad{background:#f87171;box-shadow:0 0 0 3px rgba(248,113,113,.25)}
+main{max-width:560px;margin:0 auto;padding:14px 16px 140px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.pv{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pv canvas{width:100%;max-width:420px;aspect-ratio:58/40;height:auto;border-radius:10px;background:#fff;
+  image-rendering:pixelated;box-shadow:0 0 0 1px var(--line),0 8px 20px -12px rgba(0,0,0,.35)}
+.pv small{color:var(--mut);font-size:12.5px}
+label{display:block;font-size:13.5px;color:var(--mut);margin:14px 0 6px}
+label:first-child{margin-top:0}
+label .opt{opacity:.7}
+input,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;outline:0}
+input:focus,textarea:focus{border-color:var(--pri);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 18%,transparent)}
+textarea{min-height:76px;resize:vertical;line-height:1.7}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 74px 92px 40px;gap:6px;margin-bottom:6px}
+.row input{padding:10px 9px}
+.row .amt{direction:ltr;text-align:center}
+.del{border:0;border-radius:12px;background:var(--field);color:var(--mut);font-size:18px;border:1.5px solid var(--line)}
+.btn{border:0;border-radius:12px;padding:11px 16px;font:inherit;font-size:15px;cursor:pointer;background:var(--field);color:var(--ink);border:1.5px solid var(--line)}
+.add{width:100%;border-style:dashed;color:var(--pri);font-weight:bold}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -16px rgba(0,0,0,.35)}
+.bar .in{max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.qty{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--field)}
+.qty button{width:42px;height:48px;border:0;background:transparent;color:var(--ink);font-size:22px}
+.qty span{min-width:30px;text-align:center;font-weight:bold;font-size:17px}
+.print{flex:1;height:52px;border:0;border-radius:14px;font:inherit;font-size:17px;font-weight:bold;color:#fff;
+  background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 10px 22px -12px #f97316}
+.print:disabled{opacity:.45;box-shadow:none}
+.clear{height:52px;padding:0 12px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);opacity:0;transition:.25s;z-index:9;
+  background:#14212b;color:#fff;padding:12px 18px;border-radius:14px;font-size:15px;max-width:90vw;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
+.hint{color:var(--mut);font-size:12.5px;line-height:1.9;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚗️ لیبل داروی ساختنی</h1>
+  <div class="pill"><span class="dot" id="dot"></span><span id="st">در حال اتصال…</span></div>
+</header>
+
+<main>
+  <div class="card pv">
+    <canvas id="cv" width="464" height="320"></canvas>
+    <small id="pvInfo">پیش‌نمایش دقیق همان چیزی که چاپ می‌شود</small>
+  </div>
+
+  <div class="card">
+    <label for="pat">نام مراجعه‌کننده <span class="opt">(اختیاری)</span></label>
+    <input id="pat" placeholder="مثلاً: آقای احمدی" autocomplete="off">
+
+    <label>اقلام ساختنی <span class="opt">(اختیاری)</span></label>
+    <div id="rows"></div>
+    <button class="btn add" id="add">＋ افزودن قلم</button>
+
+    <label for="free">متن آزاد <span class="opt">(اختیاری)</span></label>
+    <textarea id="free" placeholder="مثلاً: پماد ترکیبی طبق نسخهٔ پزشک"></textarea>
+
+    <label for="use">دستور مصرف <span class="opt">(اختیاری)</span></label>
+    <textarea id="use" placeholder="مثلاً: روزی دو بار، به‌صورت نازک روی ناحیه بمالید."></textarea>
+
+    <div class="hint">هر بخش را خالی بگذارید روی لیبل نمی‌آید. اندازهٔ نوشته‌ها خودکار تنظیم می‌شود. برای دسترسی سریع، از منوی مرورگر «Add to Home screen» را بزنید.</div>
+  </div>
+  <datalist id="units"><option value="گرم"><option value="میلی‌گرم"><option value="میلی‌لیتر"><option value="سی‌سی"><option value="عدد"><option value="قطره"><option value="درصد"><option value="کپسول"><option value="قرص"><option value="قاشق چایخوری"></datalist>
+</main>
+
+<div class="bar"><div class="in">
+  <div class="qty"><button id="qp" aria-label="بیشتر">+</button><span id="qn">۱</span><button id="qm" aria-label="کمتر">−</button></div>
+  <button class="print" id="print" disabled>🖨️ چاپ لیبل</button>
+  <button class="btn clear" id="clear">پاک</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fa=n=>String(n).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
+const fixFa=s=>(s||"").replace(/ي/g,"ی").replace(/ك/g,"ک").trim();
+let CFG={foot:"داروخانه شبانه روزی دکتر زارعی - سیرجان ، چهار راه شهربابک - 03442204802",widthMm:58,heightMm:40};
+let qty=1;
+
+/* ---------- رسم لیبل روی بوم (۸ نقطه در هر میلی‌متر = رزولوشن پرینتر) ---------- */
+const DPM=8, PT=DPM*25.4/72;        // پیکسل در هر pt
+const FONT='"AradFD",Tahoma,sans-serif';
+function font(ctx,px,bold){ctx.font=`${bold?"bold ":""}${px}px ${FONT}`}
+// مثل dir="auto": جهت متن از اولین حرف قوی (لاتین یا فارسی) تعیین می‌شود
+function dirOf(s){const m=String(s).match(/[A-Za-z؀-ۿ]/);return m&&/[A-Za-z]/.test(m[0])?"ltr":"rtl"}
+function fillDir(ctx,t,x,y){ctx.direction=dirOf(t);ctx.fillText(t,x,y);ctx.direction="rtl"}
+function wrap(ctx,text,maxW){
+  const out=[];
+  for(const para of String(text).split(/\n/)){
+    const words=para.split(/\s+/).filter(Boolean);let line="";
+    if(!words.length){out.push("");continue}
+    for(const w of words){
+      const t=line?line+" "+w:w;
+      if(ctx.measureText(t).width<=maxW||!line){
+        if(!line&&ctx.measureText(w).width>maxW){           // کلمهٔ خیلی بلند: حرف‌به‌حرف بشکن
+          let part="";for(const ch of w){if(ctx.measureText(part+ch).width>maxW&&part){out.push(part);part=ch}else part+=ch}
+          line=part;
+        }else line=t;
+      }else{out.push(line);line=w}
+    }
+    out.push(line);
+  }
+  return out;
+}
+function fitOne(ctx,text,maxW,maxH,maxPt,minPt,bold){
+  for(let s=maxPt;s>=minPt;s-=0.25){font(ctx,s*PT,bold);if(ctx.measureText(text).width<=maxW&&s*PT*1.2<=maxH)return {px:s*PT,ok:true}}
+  return {px:minPt*PT,ok:false};
+}
+function hline(ctx,W,y){ctx.fillRect(Math.round(W*.05),Math.round(y),Math.round(W*.9),2)}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+
+function drawLabel(cv,c){
+  const W=Math.round(CFG.widthMm*DPM),H=Math.round(CFG.heightMm*DPM);
+  cv.width=W;cv.height=H;
+  const ctx=cv.getContext("2d");
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);ctx.fillStyle="#000";ctx.strokeStyle="#000";ctx.direction="rtl";ctx.textBaseline="middle";
+  const pct=p=>H*p/100;
+  if(!c.pat&&!c.items.length&&!c.free&&!c.use)c={pat:"نام مراجعه‌کننده",items:[{n:"Clobetazole",a:"100",u:"gr"}],free:"",use:"دستور مصرف در اینجا نوشته می‌شود"};
+
+  // قاب
+  ctx.lineWidth=2.4;rrect(ctx,1.4*DPM,1.2*DPM,W-2.8*DPM,H-2.4*DPM,1.6*DPM);ctx.stroke();
+
+  const hasBody=c.items.length>0||!!c.free,hasUse=!!c.use,hasPat=!!c.pat;
+  const L=W*.05,R=W*.95,bw=R-L;
+  let y;
+  // سربرگ مراجعه‌کننده
+  if(hasPat){
+    const hx=W*.03,hw=W*.94,hy=pct(3),hh=pct(11.5);
+    rrect(ctx,hx,hy,hw,hh,DPM);ctx.fill();
+    const t="مراجعه‌کننده: "+c.pat;
+    const f=fitOne(ctx,t,(hw-3.2*DPM)*.97,hh,9,5,true);
+    font(ctx,f.px,true);ctx.fillStyle="#fff";ctx.textAlign="center";ctx.fillText(t,W/2,hy+hh/2+1);ctx.fillStyle="#000";
+    y=17;
+  }else y=6;
+  const yEnd=81,split=hasBody&&hasUse,bodyEnd=split?62:yEnd;
+
+  // بدنه: اقلام و متن آزاد
+  if(hasBody){
+    const top=pct(y),boxH=pct(bodyEnd-y),gap=3.2*DPM;
+    const layout=(cols,px)=>{
+      font(ctx,px,false);
+      const colW=(bw-gap*(cols-1))/cols,rowH=px*1.48,n=c.items.length,perCol=Math.ceil(n/cols);
+      for(const it of c.items){
+        const amt=((it.a||"")+" "+(it.u||"")).trim();
+        if(ctx.measureText(it.n).width+ctx.measureText(amt).width+(amt&&it.n?3.6*DPM:0)>colW)return null;
+      }
+      const freeLines=c.free?wrap(ctx,c.free,bw):[];
+      const h=perCol*rowH+(freeLines.length?freeLines.length*px*1.2+(n?px*.35:0):0);
+      return h<=boxH?{cols,colW,rowH,perCol,freeLines,h,px}:null;
+    };
+    let best=null;
+    for(const cols of [1,2]){
+      if(cols>1&&c.items.length<2)continue;
+      for(let s=(c.items.length?15:13);s>=4.5;s-=0.25){const l=layout(cols,s*PT);if(l){if(!best||l.px>best.px+0.01)best=l;break}}
+    }
+    if(!best){font(ctx,4.5*PT,false);best={cols:1,colW:bw,rowH:4.5*PT*1.48,perCol:c.items.length,freeLines:c.free?wrap(ctx,c.free,bw):[],h:boxH,px:4.5*PT}}
+    font(ctx,best.px,false);
+    let cy=top+Math.max(0,(boxH-best.h)/2);
+    c.items.forEach((it,i)=>{
+      const col=Math.floor(i/best.perCol),row=i%best.perCol;
+      const xr=R-col*(best.colW+gap),xl=xr-best.colW,ym=cy+row*best.rowH+best.rowH/2;
+      const amt=((it.a||"")+" "+(it.u||"")).trim();
+      ctx.textAlign="right";fillDir(ctx,it.n,xr,ym);
+      ctx.textAlign="left";fillDir(ctx,amt,xl,ym);
+      const a=xl+ctx.measureText(amt).width+0.8*DPM,b=xr-ctx.measureText(it.n).width-0.8*DPM,dy=Math.round(ym+best.px*.22);
+      if(it.n&&amt)for(let x=Math.ceil(a);x<b-1;x+=4)ctx.fillRect(x,dy,2,2);
+    });
+    cy+=best.perCol*best.rowH+(c.items.length&&best.freeLines.length?best.px*.35:0);
+    ctx.textAlign=c.items.length?"right":"center";
+    for(const ln of best.freeLines){ctx.fillText(ln,c.items.length?R:W/2,cy+best.px*.6);cy+=best.px*1.2}
+  }
+
+  // دستور مصرف
+  if(hasUse){
+    const uy=split?64.5:y,top=pct(uy),boxH=pct(yEnd-uy);
+    if(split)hline(ctx,W,pct(63));
+    let px=4.5*PT,lines;
+    for(let s=split?9:13;s>=4.5;s-=0.25){font(ctx,s*PT,false);const l=wrap(ctx,c.use,bw);if(l.length*s*PT*1.2<=boxH){px=s*PT;lines=l;break}}
+    font(ctx,px,false);if(!lines)lines=wrap(ctx,c.use,bw);
+    let cy=top+Math.max(0,(boxH-lines.length*px*1.2)/2);ctx.textAlign="center";
+    for(const ln of lines){ctx.fillText(ln,W/2,cy+px*.6);cy+=px*1.2}
+  }
+
+  // آدرس پایین
+  hline(ctx,W,pct(83.5));
+  const ft=pct(85),fh=pct(12);ctx.textAlign="center";
+  let f=fitOne(ctx,CFG.foot,bw,fh,8,5.2,false);
+  if(f.ok){font(ctx,f.px,false);ctx.fillText(CFG.foot,W/2,ft+fh/2+1)}
+  else{
+    const k=CFG.foot.lastIndexOf(" - "),a=k>0?CFG.foot.slice(0,k):CFG.foot,b=k>0?CFG.foot.slice(k+3):"";
+    let px=4*PT;for(let s=8;s>=4;s-=0.25){font(ctx,s*PT,false);if(Math.max(ctx.measureText(a).width,ctx.measureText(b).width)<=bw&&s*PT*2.3<=fh){px=s*PT;break}}
+    font(ctx,px,false);ctx.fillText(a,W/2,ft+fh/2-px*.6);if(b)ctx.fillText(b,W/2,ft+fh/2+px*.6);
+  }
+
+  // تبدیل به سیاه‌وسفید خالص (پرینتر حرارتی خاکستری ندارد)
+  const img=ctx.getImageData(0,0,W,H),d=img.data;
+  for(let i=0;i<d.length;i+=4){const v=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000<150?0:255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255}
+  ctx.putImageData(img,0,0);
+}
+
+/* ---------- فرم ---------- */
+function getData(){
+  const items=[...document.querySelectorAll("#rows .row")].map(r=>{const i=r.querySelectorAll("input");return {n:fixFa(i[0].value),a:i[1].value.trim(),u:fixFa(i[2].value)}}).filter(x=>x.n||x.a);
+  return {pat:fixFa($("pat").value),items,free:fixFa($("free").value),use:fixFa($("use").value)};
+}
+function empty(c){return !(c.pat||c.items.length||c.free||c.use)}
+let rt;function refresh(){clearTimeout(rt);rt=setTimeout(()=>{const c=getData();drawLabel($("cv"),c);$("print").disabled=empty(c);
+  $("pvInfo").textContent=empty(c)?"نمونه — فرم را پر کنید":"پیش‌نمایش دقیق همان چیزی که چاپ می‌شود"},60)}
+function addRow(unit,focus){
+  const last=[...document.querySelectorAll("#rows .row input:nth-child(3)")].pop();
+  const d=document.createElement("div");d.className="row";
+  d.innerHTML=`<input placeholder="نام قلم" autocomplete="off" dir="auto"><input class="amt" placeholder="مقدار" inputmode="decimal"><input list="units" placeholder="واحد"><button class="del" aria-label="حذف">✕</button>`;
+  d.querySelectorAll("input")[2].value=unit||(last?last.value:"گرم");
+  d.querySelector(".del").onclick=()=>{d.remove();if(!document.querySelector("#rows .row"))addRow();refresh()};
+  d.querySelectorAll("input").forEach((inp,k)=>inp.addEventListener("keydown",e=>{if(e.key!=="Enter")return;e.preventDefault();
+    if(k<2)d.querySelectorAll("input")[k+1].focus();else{const nx=d.nextElementSibling;(nx?nx:addRow()).querySelector("input").focus()}}));
+  $("rows").appendChild(d);if(focus)d.querySelector("input").focus();return d;
+}
+function setQty(n){qty=Math.max(1,Math.min(50,n));$("qn").textContent=fa(qty)}
+function toast(t,kind){const el=$("toast");el.textContent=t;el.className="toast show "+(kind||"");clearTimeout(el._t);el._t=setTimeout(()=>el.className="toast",3200)}
+
+async function doPrint(){
+  const c=getData();if(empty(c))return;
+  const btn=$("print");btn.disabled=true;btn.textContent="در حال ارسال…";
+  try{
+    drawLabel($("cv"),c);
+    const r=await fetch("/print",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({png:$("cv").toDataURL("image/png"),qty,pat:c.pat})});
+    const j=await r.json();
+    if(j.ok){toast(`✅ ${fa(j.qty)} لیبل به پرینتر فرستاده شد`,"ok");if(navigator.vibrate)navigator.vibrate(40)}
+    else toast("❌ خطا: "+(j.error||"نامشخص"),"bad");
+  }catch(e){toast("❌ ارتباط با سرور برقرار نشد — به وای‌فای داروخانه وصل هستید؟","bad")}
+  finally{btn.textContent="🖨️ چاپ لیبل";btn.disabled=empty(getData());status()}
+}
+async function status(){
+  try{const j=await (await fetch("/status",{cache:"no-store"})).json();$("dot").className="dot "+(j.ok?"ok":"bad");$("st").textContent=j.text+(j.jobs?` · ${fa(j.jobs)} در صف`:"")}
+  catch{$("dot").className="dot bad";$("st").textContent="سرور در دسترس نیست"}
+}
+
+$("add").onclick=()=>addRow(null,true);
+["pat","free","use"].forEach(id=>$(id).addEventListener("input",refresh));
+$("rows").addEventListener("input",refresh);
+$("qp").onclick=()=>setQty(qty+1);$("qm").onclick=()=>setQty(qty-1);
+$("print").onclick=doPrint;
+$("clear").onclick=()=>{$("pat").value="";$("free").value="";$("use").value="";$("rows").innerHTML="";addRow("گرم");setQty(1);refresh();window.scrollTo({top:0,behavior:"smooth"})};
+
+(async()=>{
+  addRow("گرم");setQty(1);
+  try{CFG=Object.assign(CFG,await (await fetch("/config")).json())}catch{}
+  try{await document.fonts.load(`20px "AradFD"`);await document.fonts.load(`bold 20px "AradFD"`)}catch{}
+  refresh();status();setInterval(status,15000);
+})();
+</script>
+</body>
+</html>

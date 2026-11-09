@@ -1,0 +1,4 @@
+NOSKHE-2
+192.168.70.168
+ZebraLabel
+zebraprint

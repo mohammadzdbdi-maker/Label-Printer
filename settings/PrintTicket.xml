@@ -1,0 +1,157 @@
+﻿<psf:PrintTicket version="1" xmlns:psf="http://schemas.microsoft.com/windows/2003/08/printing/printschemaframework" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:psk="http://schemas.microsoft.com/windows/2003/08/printing/printschemakeywords" xmlns:seagull.driver.unique="http://schemas.seagullscientific.com/windows/printdrivers/generic/unique" xmlns:seagull.driver.base="http://schemas.seagullscientific.com/print/seagull/driver/base" xmlns:seagull.driver.common="http://schemas.seagullscientific.com/print/seagull/driver/common" xmlns:seagull.driver.printer.epl="http://schemas.seagullscientific.com/print/seagull/driver/printer/epl">
+	<psf:Feature name="psk:PageMediaSize">
+		<psf:Option name="seagull.driver.base:StockUSER">
+			<psf:ScoredProperty name="psk:MediaSizeWidth">
+				<psf:Value xsi:type="xsd:integer">57960</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="psk:MediaSizeHeight">
+				<psf:Value xsi:type="xsd:integer">40000</psf:Value>
+			</psf:ScoredProperty>
+			<psf:Property name="seagull.driver.base:StockName">
+				<psf:Value xsi:type="xsd:string">USER</psf:Value>
+			</psf:Property>
+			<psf:Property name="seagull.driver.base:XResolution">
+				<psf:Value xsi:type="xsd:integer">0</psf:Value>
+			</psf:Property>
+			<psf:Property name="seagull.driver.base:YResolution">
+				<psf:Value xsi:type="xsd:integer">0</psf:Value>
+			</psf:Property>
+			<psf:ScoredProperty name="seagull.driver.base:StockID">
+				<psf:Value xsi:type="xsd:integer">256</psf:Value>
+			</psf:ScoredProperty>
+		</psf:Option>
+	</psf:Feature>
+	<psf:Feature name="psk:PageOrientation">
+		<psf:Option name="psk:Portrait"/>
+	</psf:Feature>
+	<psf:Feature name="psk:PageResolution">
+		<psf:Option name="seagull.driver.base:203x203">
+			<psf:ScoredProperty name="psk:ResolutionX">
+				<psf:Value xsi:type="xsd:integer">203</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="psk:ResolutionY">
+				<psf:Value xsi:type="xsd:integer">203</psf:Value>
+			</psf:ScoredProperty>
+		</psf:Option>
+	</psf:Feature>
+	<psf:Feature name="psk:PageOutputColor">
+		<psf:Option name="psk:Monochrome">
+			<psf:ScoredProperty name="psk:DeviceBitsPerPixel">
+				<psf:Value xsi:type="xsd:integer">1</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="psk:DriverBitsPerPixel">
+				<psf:Value xsi:type="xsd:integer">24</psf:Value>
+			</psf:ScoredProperty>
+		</psf:Option>
+	</psf:Feature>
+	<psf:ParameterInit name="psk:JobCopiesAllDocuments">
+		<psf:Value xsi:type="xsd:integer">1</psf:Value>
+	</psf:ParameterInit>
+	<psf:Feature name="seagull.driver.common:JobMirrorEffect">
+		<psf:Option name="seagull.driver.common:OptNo"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.common:JobNegativeEffect">
+		<psf:Option name="seagull.driver.common:OptNo"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.common:JobDithering">
+		<psf:Option name="seagull.driver.common:opt2"/>
+	</psf:Feature>
+	<psf:ParameterInit name="seagull.driver.common:JobAdjustableStockSupport">
+		<psf:Value xsi:type="xsd:string">None</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.common:JobHorizontalOffset">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.common:JobVerticalOffset">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:Feature name="seagull.driver.base:JobTicketProperties">
+		<psf:Option name="seagull.driver.base:strSeagullDriver">
+			<psf:ScoredProperty name="seagull.driver.base:DrvVersion">
+				<psf:Value xsi:type="xsd:string">12.6.0</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:PtxLibVersion">
+				<psf:Value xsi:type="xsd:string">1.3</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:PtxDrvVersion">
+				<psf:Value xsi:type="xsd:string">1.1</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:TicketVersion">
+				<psf:Value xsi:type="xsd:string">1.1</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:DrvFamily">
+				<psf:Value xsi:type="xsd:string">epl</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:DrvModel">
+				<psf:Value xsi:type="xsd:string">Zebra GK888t - EPL</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:CreationTime">
+				<psf:Value xsi:type="xsd:string">12&amp;colon;51&amp;colon;04 PM Oct 30, 2026</psf:Value>
+			</psf:ScoredProperty>
+		</psf:Option>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.base:JobCommonValueDefinitions">
+		<psf:Option name="seagull.driver.base:strSeagullDriver">
+			<psf:ScoredProperty name="seagull.driver.base:Ptxcn_PrintSpeed">
+				<psf:Value xsi:type="xsd:string">51 mms</psf:Value>
+			</psf:ScoredProperty>
+			<psf:ScoredProperty name="seagull.driver.base:Ptxcn_PrintDarkness">
+				<psf:Value xsi:type="xsd:string">20 pct</psf:Value>
+			</psf:ScoredProperty>
+		</psf:Option>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobPrintMethod">
+		<psf:Option name="seagull.driver.printer.epl:opt0"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobMediaType">
+		<psf:Option name="seagull.driver.printer.epl:opt1"/>
+	</psf:Feature>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobGapHeight">
+		<psf:Value xsi:type="xsd:string">0.12 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobGapOffset">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobMarkOffset">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobMarkHeight">
+		<psf:Value xsi:type="xsd:string">0.12 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobExtraFeed">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:Feature name="seagull.driver.printer.epl:JobIncludeAllWhiteSpace">
+		<psf:Option name="seagull.driver.printer.epl:OptNo"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobReverseSensor">
+		<psf:Option name="seagull.driver.printer.epl:OptNo"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobPostPrintAction">
+		<psf:Option name="seagull.driver.printer.epl:opt1"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobOccurrence">
+		<psf:Option name="seagull.driver.printer.epl:opt0"/>
+	</psf:Feature>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobInterval">
+		<psf:Value xsi:type="xsd:integer">1</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobTopAdjustment">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobFeedAdjustment">
+		<psf:Value xsi:type="xsd:string">0.00 in</psf:Value>
+	</psf:ParameterInit>
+	<psf:Feature name="seagull.driver.printer.epl:JobUsePrinterSpeedSettings">
+		<psf:Option name="seagull.driver.printer.epl:OptYes"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobPrintSpeed">
+		<psf:Option name="seagull.driver.printer.epl:opt50800"/>
+	</psf:Feature>
+	<psf:Feature name="seagull.driver.printer.epl:JobUsePrinterDarknessSettings">
+		<psf:Option name="seagull.driver.printer.epl:OptYes"/>
+	</psf:Feature>
+	<psf:ParameterInit name="seagull.driver.printer.epl:JobDarknessLevel">
+		<psf:Value xsi:type="xsd:integer">3</psf:Value>
+	</psf:ParameterInit>
+</psf:PrintTicket>
